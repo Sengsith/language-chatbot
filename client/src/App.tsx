@@ -5,6 +5,9 @@ const App = () => {
       const res = await fetch(import.meta.env.VITE_SERVER_URL);
       const data = await res.json();
       console.log("data:", data);
+      const AIRes = await fetch(import.meta.env.VITE_SERVER_OPENAI_URL);
+      const AIData = await AIRes.json();
+      console.log("AIData:", AIData);
     } catch (error) {
       console.error("Error fetching backend:", error);
     }
