@@ -1,37 +1,23 @@
-import { useState, useEffect } from "react";
-import { Content } from "@google/generative-ai";
+import useGemini from "./hooks/useGemini";
+import Loading from "./components/Loading";
 
 const App = () => {
-  const [prompt, setPrompt] = useState<string>("");
-  const [chatHistory, setChatHistory] = useState<Content[]>([]);
+  const { loading, sendPrompt, isChatEmpty, getChatHistory } = useGemini();
 
-  useEffect(() => {
-    console.log("Mount useEffect");
-    setPrompt("I have 2 dogs in my house.");
-  }, []);
-
-  const sendPrompt = async () => {
+  const handleOnClick = () => {
     console.log("click");
-    try {
-      const res = await fetch(import.meta.env.VITE_SERVER_GEMINI_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt: prompt, history: chatHistory }),
-      });
-      const data = await res.json();
-      console.log("data:", data);
-      setChatHistory(data.chatHistory);
-    } catch (error) {
-      console.error("Error fetching backend:", error);
-    }
+    sendPrompt("I have 2 dogs in my house");
   };
 
   return (
     <div id="app" className="bg-neutral-800 text-white min-h-screen">
       <h1 className="text-4xl">Language Chatbot</h1>
-      <button onClick={sendPrompt}>Send prompt</button>
+      <button onClick={handleOnClick}>Send prompt</button>
+      {loading && <Loading />}
+      {!isChatEmpty() &&
+        getChatHistory().map((message, index) => {
+          return <div key={index}>{message.parts[0].text}</div>;
+        })}
     </div>
   );
 };
