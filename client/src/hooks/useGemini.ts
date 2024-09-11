@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Content } from "@google/generative-ai";
 
 const useGemini = () => {
+  const CHAT_HISTORY: string = "chat-history";
   const [loading, setLoading] = useState<boolean>(false);
   const [chatHistory, setChatHistory] = useState<Content[]>([]);
+
+  useEffect(() => {
+    const storedHistory = localStorage.getItem(CHAT_HISTORY);
+    if (!storedHistory) return;
+    setChatHistory(JSON.parse(storedHistory));
+  }, []);
+
+  useEffect(() => {
+    if (chatHistory.length === 0) return;
+    localStorage.setItem(CHAT_HISTORY, JSON.stringify(chatHistory));
+  }, [chatHistory]);
 
   const sendPrompt = async (prompt: string) => {
     try {
@@ -33,7 +45,12 @@ const useGemini = () => {
     return chatHistory;
   };
 
-  return { loading, sendPrompt, isChatEmpty, getChatHistory };
+  const clearHistory = () => {
+    setChatHistory([]);
+    localStorage.removeItem(CHAT_HISTORY);
+  };
+
+  return { loading, sendPrompt, isChatEmpty, getChatHistory, clearHistory };
 };
 
 export default useGemini;
